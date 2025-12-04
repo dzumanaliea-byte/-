@@ -1,57 +1,32 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Детские турниры U5–U14</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Турнир NP Consulting</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>Детские турниры U5–U14</h1>
-  <select id="ageSelect" onchange="renderMatches(); renderTable();">
-    <option value="U5">U5</option>
-    <option value="U6">U6</option>
-    <option value="U7">U7</option>
-    <option value="U8">U8</option>
-    <option value="U9">U9</option>
-    <option value="U10">U10</option>
-    <option value="U11">U11</option>
-    <option value="U12">U12</option>
-    <option value="U13">U13</option>
-    <option value="U14">U14</option>
-  </select>
-</header>
+<h1>Админ-панель турнира NP Consulting</h1>
 
-<section id="teamLogos">
-  <h2>Логотипы команд</h2>
-  <div id="logoContainer"></div>
-  <input type="file" id="logoInput" accept="image/*">
-  <button onclick="addLogo()">Добавить лого</button>
-</section>
+<div id="login">
+    <h3>Вход по PIN</h3>
+    <input type="password" id="pin" placeholder="Введите PIN 0000">
+    <button onclick="login()">Войти</button>
+</div>
 
-<section id="matchInput">
-  <h2>Добавить результат матча</h2>
-  <input id="teamA" placeholder="Команда A">
-  <input id="teamB" placeholder="Команда B">
-  <input id="scoreA" type="number" placeholder="Голы А">
-  <input id="scoreB" type="number" placeholder="Голы Б">
-  <button onclick="addMatch()">Добавить матч</button>
-</section>
+<div id="panel" style="display:none;">
+    <h2>Управление матчами</h2>
+    <input id="team1" placeholder="Команда 1">
+    <input id="team2" placeholder="Команда 2">
+    <input id="score1" placeholder="Голы 1" type="number">
+    <input id="score2" placeholder="Голы 2" type="number">
+    <button onclick="addMatch()">Добавить матч</button>
 
-<section id="standings">
-  <h2>Турнирная таблица</h2>
-  <table id="tableStandings">
-    <thead>
-      <tr><th>Команда</th><th>И</th><th>В</th><th>Н</th><th>П</th><th>З</th><th>П</th><th>+/-</th><th>О</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</section>
+    <h2>Список матчей</h2>
+    <ul id="matches"></ul>
 
-<section id="matches">
-  <h2>Матчи</h2>
-  <div id="matchList"></div>
-</section>
+    <button onclick="exportCSV()">Экспорт CSV</button>
+</div>
 
 <script src="script.js"></script>
 </body>

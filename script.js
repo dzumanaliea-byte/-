@@ -1,87 +1,53 @@
-let logos = {};
-let data = {};
+let matches = JSON.parse(localStorage.getItem("matches") || "[]");
 
-function addLogo(){
-  let file = document.getElementById('logoInput').files[0];
-  if(!file) return;
-  let reader = new FileReader();
-  reader.onload = ()=> {
-    let name = prompt("Название команды:");
-    if(!name) return;
-    logos[name] = reader.result;
-    renderLogos();
-  };
-  reader.readAsDataURL(file);
+function login() {
+    const pin = document.getElementById("pin").value;
+    if (pin === "0000") {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("panel").style.display = "block";
+        render();
+    } else {
+        alert("Неверный PIN");
+    }
 }
 
-function renderLogos(){
-  let c = document.getElementById('logoContainer');
-  c.innerHTML = "";
-  for(let t in logos){
-    let img = document.createElement('img');
-    img.src = logos[t];
-    img.title = t;
-    c.appendChild(img);
-  }
+function addMatch() {
+    const m = {
+        t1: team1.value,
+        t2: team2.value,
+        s1: score1.value,
+        s2: score2.value
+    };
+    matches.push(m);
+    localStorage.setItem("matches", JSON.stringify(matches));
+    render();
 }
 
-function addMatch(){
-  let age = document.getElementById('ageSelect').value;
-  if(!data[age]) data[age]={teams:{}, matches:[]};
-
-  let A=document.getElementById('teamA').value;
-  let B=document.getElementById('teamB').value;
-  let gA=parseInt(document.getElementById('scoreA').value);
-  let gB=parseInt(document.getElementById('scoreB').value);
-  if(!A||!B) return;
-
-  let obj=data[age];
-  if(!obj.teams[A]) obj.teams[A]={games:0,w:0,d:0,l:0,z:0,p:0};
-  if(!obj.teams[B]) obj.teams[B]={games:0,w:0,d:0,l:0,z:0,p:0};
-
-  obj.matches.push({A,B,gA,gB});
-
-  obj.teams[A].games++; obj.teams[B].games++;
-  obj.teams[A].z+=gA; obj.teams[A].p+=gB;
-  obj.teams[B].z+=gB; obj.teams[B].p+=gA;
-
-  if(gA>gB){ obj.teams[A].w++; obj.teams[B].l++; }
-  else if(gA<gB){ obj.teams[B].w++; obj.teams[A].l++; }
-  else { obj.teams[A].d++; obj.teams[B].d++; }
-
-  renderMatches();
-  renderTable();
+function render() {
+    const list = document.getElementById("matches");
+    list.innerHTML = "";
+    matches.forEach((m, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `${m.t1} ${m.s1} : ${m.s2} ${m.t2} 
+            <button onclick="removeMatch(${i})">X</button>`;
+        list.appendChild(li);
+    });
 }
 
-function renderMatches(){
-  let age=document.getElementById('ageSelect').value;
-  let m=document.getElementById('matchList');
-  m.innerHTML="";
-  if(!data[age]) return;
-  data[age].matches.forEach(x=>{
-    let div=document.createElement('div');
-    div.className="card";
-    div.innerText=`${x.A} ${x.gA} : ${x.gB} ${x.B}`;
-    m.appendChild(div);
-  });
+function removeMatch(i) {
+    matches.splice(i, 1);
+    localStorage.setItem("matches", JSON.stringify(matches));
+    render();
 }
 
-function renderTable(){
-  let age=document.getElementById('ageSelect').value;
-  let body=document.querySelector('#tableStandings tbody');
-  body.innerHTML="";
-  if(!data[age]) return;
-  let arr=[];
-  for(let t in data[age].teams){
-    let o=data[age].teams[t];
-    let pts=o.w*3+o.d;
-    arr.push({t,...o,pts});
-  }
-  arr.sort((a,b)=>b.pts-a.pts || (b.z-b.p)-(a.z-a.p));
-
-  arr.forEach(o=>{
-    let tr=document.createElement('tr');
-    tr.innerHTML=`<td>${o.t}</td><td>${o.games}</td><td>${o.w}</td><td>${o.d}</td><td>${o.l}</td><td>${o.z}</td><td>${o.p}</td><td>${o.z-o.p}</td><td>${o.pts}</td>`;
-    body.appendChild(tr);
-  });
+function exportCSV() {
+    let csv = "Команда 1,Гол 1,Гол 2,Команда 2\n";
+    matches.forEach(m => {
+        csv += `${m.t1},${m.s1},${m.s2},${m.t2}\n`;
+    });
+    const blob = new Blob([csv], {type: "text/csv"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "matches.csv";
+    a.click();
 }
