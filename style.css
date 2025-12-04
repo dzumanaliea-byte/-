@@ -1,0 +1,6 @@
+body { font-family: sans-serif; padding:20px; background:#f5f5f5; }
+header { display:flex; justify-content:space-between; align-items:center; }
+#logoContainer img { width:60px; margin:5px; border-radius:10px; }
+table { width:100%; border-collapse:collapse; margin-top:10px; background:white; }
+table th, table td { border:1px solid #aaa; padding:5px; text-align:center; }
+#matchList .card { background:white; padding:10px; margin:5px 0; border-radius:8px; box-shadow:0 0 4px rgba(0,0,0,0.15); }

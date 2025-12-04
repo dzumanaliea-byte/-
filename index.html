@@ -1,183 +1,58 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Детские турниры</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #eef2f7;
-    }
-    header {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    header img {
-      width: 70px;
-      height: 70px;
-      border-radius: 10px;
-    }
-    h1 {
-      margin: 0;
-    }
-    .save-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #4f46e5;
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
-    .age-group {
-      margin-top: 40px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #e0e7ff;
-    }
-    td[contenteditable="true"] {
-      background: #fff8dc;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Детские турниры U5–U14</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+<header>
+  <h1>Детские турниры U5–U14</h1>
+  <select id="ageSelect" onchange="renderMatches(); renderTable();">
+    <option value="U5">U5</option>
+    <option value="U6">U6</option>
+    <option value="U7">U7</option>
+    <option value="U8">U8</option>
+    <option value="U9">U9</option>
+    <option value="U10">U10</option>
+    <option value="U11">U11</option>
+    <option value="U12">U12</option>
+    <option value="U13">U13</option>
+    <option value="U14">U14</option>
+  </select>
+</header>
 
-  <header>
-    <img src="logo.png" alt="Логотип турнира" />
-    <h1>Турнирные таблицы (Ю5 — Ю14)</h1>
-  </header>
+<section id="teamLogos">
+  <h2>Логотипы команд</h2>
+  <div id="logoContainer"></div>
+  <input type="file" id="logoInput" accept="image/*">
+  <button onclick="addLogo()">Добавить лого</button>
+</section>
 
-  <div id="tables"></div>
+<section id="matchInput">
+  <h2>Добавить результат матча</h2>
+  <input id="teamA" placeholder="Команда A">
+  <input id="teamB" placeholder="Команда B">
+  <input id="scoreA" type="number" placeholder="Голы А">
+  <input id="scoreB" type="number" placeholder="Голы Б">
+  <button onclick="addMatch()">Добавить матч</button>
+</section>
 
-  <button class="save-btn" onclick="saveTables()">💾 Сохранить данные</button>
+<section id="standings">
+  <h2>Турнирная таблица</h2>
+  <table id="tableStandings">
+    <thead>
+      <tr><th>Команда</th><th>И</th><th>В</th><th>Н</th><th>П</th><th>З</th><th>П</th><th>+/-</th><th>О</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
 
-  <script>
-    const groups = ["Ю5", "Ю6", "Ю7", "Ю8", "Ю9", "Ю10", "Ю11", "Ю12", "Ю13", "Ю14"];
+<section id="matches">
+  <h2>Матчи</h2>
+  <div id="matchList"></div>
+</section>
 
-    const container = document.getElementById("tables");
-
-    groups.forEach(g => {
-      const block = document.createElement("div");
-      block.className = "age-group";
-      block.innerHTML = `
-        <h2>Группа ${g}</h2>
-        <table data-group="${g}">
-          <thead>
-            <tr>
-              <th>Команда</th>
-              <th>Игры</th>
-              <th>Победы</th>
-              <th>Ничьи</th>
-              <th>Поражения</th>
-              <th>Забитые</th>
-              <th>Пропущенные</th>
-              <th>Разница</th>
-              <th>Очки</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td contenteditable="true">Команда 1</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true" class="goals-for">0</td>
-              <td contenteditable="true" class="goals-against">0</td>
-              <td class="goal-diff">0</td>
-              <td contenteditable="true">0</td>
-            </tr>
-            <tr>
-              <td contenteditable="true">Команда 2</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true">0</td>
-              <td contenteditable="true" class="goals-for">0</td>
-              <td contenteditable="true" class="goals-against">0</td>
-              <td class="goal-diff">0</td>
-              <td contenteditable="true">0</td>
-            </tr>
-          </tbody>
-        </table>
-      `;
-      container.appendChild(block);
-    });
-
-    function saveTables() {
-      const data = {};
-      document.querySelectorAll("table").forEach(table => {
-        const group = table.dataset.group;
-        data[group] = [];
-        table.querySelectorAll("tbody tr").forEach(row => {
-          const rowData = [];
-          row.querySelectorAll("td").forEach(cell => rowData.push(cell.textContent.trim()));
-          data[group].push(rowData);
-        });
-      });
-      localStorage.setItem("tournamentTables", JSON.stringify(data));
-      alert("Данные сохранены!");
-    }
-
-    function loadTables() {
-      const saved = localStorage.getItem("tournamentTables");
-      if (!saved) return;
-      const data = JSON.parse(saved);
-      document.querySelectorAll("table").forEach(table => {
-        const group = table.dataset.group;
-        if (!data[group]) return;
-        const rows = table.querySelectorAll("tbody tr");
-        rows.forEach((row, i) => {
-          const cells = row.querySelectorAll("td");
-          data[group][i].forEach((value, j) => {
-            cells[j].textContent = value;
-          });
-        });
-      });
-    }
-
-    loadTables();
-
-    function updateDifferences() {
-      document.querySelectorAll("tbody tr").forEach(row => {
-        const gf = parseInt(row.querySelector('.goals-for')?.textContent || "0");
-        const ga = parseInt(row.querySelector('.goals-against')?.textContent || "0");
-        const diffCell = row.querySelector('.goal-diff');
-        if (diffCell) diffCell.textContent = gf - ga;
-      });
-    }
-
-    document.addEventListener('input', e => {
-      if (e.target.classList.contains('goals-for') || e.target.classList.contains('goals-against')) {
-        updateDifferences();
-      }
-    });
-
-    updateDifferences();
-  </script>
+<script src="script.js"></script>
 </body>
 </html>
